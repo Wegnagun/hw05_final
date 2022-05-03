@@ -51,7 +51,7 @@ class PostModelTest(TestCase):
             ('post', 'Cтатья с комментариями', self.comment),
             ('author', 'Автор комментария', self.comment),
             ('text', 'Комментарий', self.comment),
-            ('created', 'дата комментария', self.comment),
+            ('created', 'Дата создания', self.comment),
         ]
 
         for field, expected_value, test_object in field_verboses:

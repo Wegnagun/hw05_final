@@ -30,6 +30,7 @@ class PaginatorViewsTest(TestCase):
         self.authorized_client.force_login(self.user)
 
     def test_paginator(self):
+        """Проверяем пагинатор - нагибатор"""
         remains_pages = len(self.posts) - settings.MAX_PAGES
         last_page = self.authorized_client.get(
             reverse('posts:index')).context.get('page_obj').paginator.num_pages

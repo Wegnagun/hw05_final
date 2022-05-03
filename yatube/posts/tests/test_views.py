@@ -1,11 +1,12 @@
-from django.contrib.auth import get_user_model
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import Client, TestCase, override_settings
-from django.urls import reverse
-from django.conf import settings
 import shutil
 import tempfile
 
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.cache import cache
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import Client, TestCase, override_settings
+from django.urls import reverse
 
 from ..models import Post, Group
 
@@ -83,4 +84,15 @@ class PostsPagesTest(TestCase):
         self.assertNotIn(self.post, page_object)
 
     def test_cashing(self):
-        pass
+        content = self.authorized_client.get(reverse('posts:index')).content
+        Post.objects.create(
+            text='пост для кеши',
+            author=self.user,
+        )
+        content_after_post = self.authorized_client.get(
+            reverse('posts:index')).content
+        self.assertEqual(content, content_after_post)
+        cache.clear()
+        content_after_clear = self.authorized_client.get(
+            reverse('posts:index')).content
+        self.assertNotEqual(content_after_post, content_after_clear)
