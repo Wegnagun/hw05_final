@@ -8,7 +8,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from ..models import Post, Group
+from ..models import Post, Group, Follow
 
 User = get_user_model()
 TEMP = tempfile.mktemp(dir=settings.TEMP_MEDIA_ROOT)
@@ -104,21 +104,24 @@ class PostsPagesTest(TestCase):
             reverse('posts:index')).content
         self.assertNotEqual(content_after_post, content_after_clear)
 
-    def test_follow(self):
-        self.authorized_client.force_login(self.not_follower)
-        response = self.authorized_client.get(
-            reverse('posts:follow_index'))
-        page_obj_list = response.context.get('page_obj').object_list
-        self.assertEqual(len(page_obj_list), 0)
-
+    def test_follow_can_see_posts(self):
+        Follow.objects.create(
+            user=self.follower,
+            author=self.user
+        )
         self.authorized_client.force_login(self.follower)
-        self.authorized_client.get(reverse('posts:profile_follow',
-                                           args=[self.user.username]))
-        response = self.authorized_client.get(
+        response_follow = self.authorized_client.get(
             reverse('posts:follow_index'))
-        page_obj_list = response.context.get('page_obj').object_list
-        print(len(page_obj_list))
-        # response = self.authorized_client.get(
-        #     reverse('posts:follow_index'))
-        # print(response)
-        # self.assertEqual(response.context['post'], self.post)
+        objects_count_follow = len(
+            response_follow.context['page_obj'].object_list)
+        self.assertEqual(objects_count_follow, 1)
+        cache.clear()
+        self.authorized_client.force_login(self.user)
+        user_response_follow = self.authorized_client.get(
+            reverse('posts:follow_index'))
+        objects_count_follow = len(
+            user_response_follow.context['page_obj'].object_list)
+        self.assertEqual(objects_count_follow, 0)
+
+    def test_can_follow(self):
+        pass
