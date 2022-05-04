@@ -58,6 +58,13 @@ class PostsPagesTest(TestCase):
     def setUp(self) -> None:
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
+        self.follower = User.objects.create(
+            username='follower'
+        )
+        self.not_follower = User.objects.create(
+            username='followerknot'
+        )
+        cache.clear()
 
     def test_pages_show_correct_context(self):
         """Проверяем передаваемый контекст"""
@@ -96,3 +103,22 @@ class PostsPagesTest(TestCase):
         content_after_clear = self.authorized_client.get(
             reverse('posts:index')).content
         self.assertNotEqual(content_after_post, content_after_clear)
+
+    def test_follow(self):
+        self.authorized_client.force_login(self.not_follower)
+        response = self.authorized_client.get(
+            reverse('posts:follow_index'))
+        page_obj_list = response.context.get('page_obj').object_list
+        self.assertEqual(len(page_obj_list), 0)
+
+        self.authorized_client.force_login(self.follower)
+        self.authorized_client.get(reverse('posts:profile_follow',
+                                           args=[self.user.username]))
+        response = self.authorized_client.get(
+            reverse('posts:follow_index'))
+        page_obj_list = response.context.get('page_obj').object_list
+        print(len(page_obj_list))
+        # response = self.authorized_client.get(
+        #     reverse('posts:follow_index'))
+        # print(response)
+        # self.assertEqual(response.context['post'], self.post)

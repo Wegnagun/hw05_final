@@ -3,6 +3,7 @@ from http import HTTPStatus
 from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
 from django.urls import reverse
+from django.core.cache import cache
 
 from ..models import Post, Group
 
@@ -26,6 +27,7 @@ class StaticUrlTest(TestCase):
         )
 
     def setUp(self):
+        cache.clear()
         self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
@@ -45,6 +47,7 @@ class StaticUrlTest(TestCase):
                 reverse('posts:post_edit', args=[self.post.id])),
             (f'/posts/{self.post.id}/comment/',
              reverse('posts:add_comment', args=[self.post.id])),
+            ('/follow/', reverse('posts:follow_index')),
         ]
 
         for address, reverse_name in address_and_reverse:
@@ -73,6 +76,7 @@ class StaticUrlTest(TestCase):
             reverse('posts:post_detail', args=[self.post.id]),
             reverse('posts:post_create'),
             reverse('posts:post_edit', args=[self.post.id]),
+            reverse('posts:follow_index'),
         ]
 
         for page in authoraized_pages_list:
@@ -89,7 +93,8 @@ class StaticUrlTest(TestCase):
         """Проверяем переадресацию"""
         guest_pages_list = [
             reverse('posts:post_edit', args=[self.post.id]),
-            reverse('posts:add_comment', args=[self.post.id])
+            reverse('posts:add_comment', args=[self.post.id]),
+            reverse('posts:follow_index'),
         ]
         for page in guest_pages_list:
             with self.subTest(page=page):
@@ -117,6 +122,7 @@ class StaticUrlTest(TestCase):
             (reverse('posts:post_create'), 'posts/create_post.html'),
             (reverse('posts:post_edit', args=[self.post.id]),
                 'posts/create_post.html'),
+            (reverse('posts:follow_index'), 'posts/follow.html'),
         ]
 
         for address, template in templates_url_names:

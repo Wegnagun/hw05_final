@@ -7,11 +7,9 @@
 {% block content %}
     <h1>{{ index }}</h1>
     {% include 'includes/switcher.html'%}
-{#    {% cache 20 index_pages %}#}
     {% for post in page_obj %}
         {% include 'includes/show_posts.html' %}
         {% if not forloop.last %}<hr>{% endif %}
     {% endfor %}
     {% include 'includes/paginator.html' %}
-{#    {% endcache %}#}
 {% endblock %}

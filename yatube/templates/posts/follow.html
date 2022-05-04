@@ -6,12 +6,10 @@
 {% endblock %}
 {% block content %}
     <h1>Преследуемые авторы</h1>
-{#    {% cache 20 index_pages %}#}
     {% include 'includes/switcher.html' with follow=True %}
     {% for post in page_obj %}
         {% include 'includes/show_posts.html' %}
         {% if not forloop.last %}<hr>{% endif %}
     {% endfor %}
     {% include 'includes/paginator.html' %}
-{#    {% endcache %}#}
 {% endblock %}
