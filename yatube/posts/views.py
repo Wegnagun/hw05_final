@@ -118,6 +118,7 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
+    """Страница с постами уважаемых людей."""
     post = Post.objects.filter(
         author__following__user=request.user).select_related('author', 'group')
     paginator = Paginator(post, settings.MAX_PAGES)

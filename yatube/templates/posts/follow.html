@@ -7,9 +7,12 @@
 {% block content %}
     <h1>Преследуемые авторы</h1>
     {% include 'includes/switcher.html' with follow=True %}
-    {% for post in page_obj %}
-        {% include 'includes/show_posts.html' %}
-        {% if not forloop.last %}<hr>{% endif %}
-    {% endfor %}
-    {% include 'includes/paginator.html' %}
+    {% load cache %}
+    {% cache 20 follow_page %}
+        {% for post in page_obj %}
+            {% include 'includes/show_posts.html' %}
+            {% if not forloop.last %}<hr>{% endif %}
+        {% endfor %}
+        {% include 'includes/paginator.html' %}
+    {% endcache %}
 {% endblock %}
