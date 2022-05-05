@@ -91,6 +91,7 @@ class PostsPagesTest(TestCase):
         self.assertNotIn(self.post, page_object)
 
     def test_cashing(self):
+        """Проверка кэширования"""
         content = self.authorized_client.get(reverse('posts:index')).content
         Post.objects.create(
             text='пост для кеши',
@@ -105,6 +106,7 @@ class PostsPagesTest(TestCase):
         self.assertNotEqual(content_after_post, content_after_clear)
 
     def test_follow_can_see_posts(self):
+        """подписчик может видет посты автора а неподписчи - нет"""
         Follow.objects.create(
             user=self.follower,
             author=self.user
@@ -124,4 +126,25 @@ class PostsPagesTest(TestCase):
         self.assertEqual(objects_count_follow, 0)
 
     def test_can_follow(self):
-        pass
+        """Авторизованный пользователь может подписываться на других"""
+        follow_count = Follow.objects.filter(
+            user=self.follower,
+            author=self.user).count()
+        self.assertEqual(0, follow_count)
+        self.authorized_client.force_login(self.follower)
+        self.authorized_client.get(reverse(
+            'posts:profile_follow',
+            args=[self.user.username])
+        )
+        follow_count = Follow.objects.filter(
+            user=self.follower,
+            author=self.user).count()
+        self.assertEqual(1, follow_count)
+        self.authorized_client.get(reverse(
+            'posts:profile_unfollow',
+            args=[self.user.username])
+        )
+        follow_count = Follow.objects.filter(
+            user=self.follower,
+            author=self.user).count()
+        self.assertEqual(0, follow_count)
