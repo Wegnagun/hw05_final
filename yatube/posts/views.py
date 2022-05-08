@@ -9,12 +9,11 @@ from .models import Post, Group, User, Follow
 
 def index(request):
     """Вывод последних 10 постов"""
-    posts = Post.objects.select_related('author', 'group')
-    paginator = Paginator(posts, settings.MAX_PAGES)
+    post_list = Post.objects.select_related('author', 'group')
+    paginator = Paginator(post_list, settings.MAX_PAGES)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {
-        'posts': posts,
         'index': 'Последние обновления на сайте',
         'page_obj': page_obj,
     }

@@ -42,7 +42,6 @@ class PostModelTest(TestCase):
         """Проверяем, что у модели post корректное отражение verbose_name."""
         field_verboses = [
             ('text', 'текст поста', self.post),
-            ('pub_date', 'дата публикации', self.post),
             ('author', 'Автор', self.post),
             ('group', 'Группа', self.post),
             ('image', 'Изображение', self.post),

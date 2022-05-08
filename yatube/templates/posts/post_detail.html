@@ -10,7 +10,7 @@
     <aside class="col-12 col-md-3">
       <ul class="list-group list-group-flush">
         <li class="list-group-item">
-          Дата публикации: {{ posts.pub_date|date:"d.m.Y" }}
+          Дата публикации: {{ posts.created|date:"d.m.Y" }}
         </li>
         {% if posts.group != None %}
           <li class="list-group-item">

@@ -21,11 +21,9 @@ class Group(models.Model):
         verbose_name_plural = 'Группы'
 
 
-class Post(models.Model):
+class Post(CreatedModel):
     text = models.TextField(verbose_name='текст поста',
                             help_text='Добавьте текст поста!')
-    pub_date = models.DateTimeField(auto_now_add=True,
-                                    verbose_name='дата публикации')
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -48,7 +46,7 @@ class Post(models.Model):
     )
 
     class Meta:
-        ordering = ('-pub_date',)
+        ordering = ('-created',)
         verbose_name = 'Посты'
         verbose_name_plural = 'Посты'
 

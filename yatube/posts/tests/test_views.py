@@ -77,7 +77,7 @@ class PostsPagesTest(TestCase):
         for reverse_page, context_object in context:
             with self.subTest(reverse_page=reverse_page):
                 response = self.authorized_client.get(reverse_page)
-                self.assertIn(context_object, response.context['posts'])
+                self.assertIn(context_object, response.context['page_obj'])
 
         response = self.authorized_client.get(
             reverse('posts:post_detail', args=[self.post.id]))

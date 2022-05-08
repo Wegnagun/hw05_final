@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterModelOptions(
             name='post',
-            options={'ordering': ('-pub_date',), 'verbose_name': 'Посты', 'verbose_name_plural': 'Посты'},
+            options={'ordering': ('-created',), 'verbose_name': 'Посты', 'verbose_name_plural': 'Посты'},
         ),
         migrations.AlterField(
             model_name='group',
