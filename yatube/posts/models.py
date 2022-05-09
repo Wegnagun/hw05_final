@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models import Q, F
 from core.models import CreatedModel
 
 User = get_user_model()
@@ -72,11 +73,16 @@ class Comment(CreatedModel):
         help_text='Добавьте текст комментария'
     )
 
+    class Meta:
+        ordering = ('post',)
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+
     def __str__(self):
         return self.text[:30]
 
 
-class Follow(CreatedModel):
+class Follow(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -93,3 +99,10 @@ class Follow(CreatedModel):
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
+        models.UniqueConstraint(fields=('user', 'author'),
+                                name='unique_follow')
+        models.CheckConstraint(check=~Q(user=F('author')),
+                               name='user_cant_follow_himself')
+
+    def __str__(self):
+        return f'{self.user} подписан на {self.author}'
