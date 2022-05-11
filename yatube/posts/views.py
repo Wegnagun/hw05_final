@@ -29,7 +29,6 @@ def group_posts(request, slug):
     page_obj = paginator.get_page(page_number)
     context = {
         'group': group,
-        'posts': posts,
         'page_obj': page_obj,
     }
     template = 'posts/group_list.html'
@@ -48,24 +47,24 @@ def profile(request, username):
     context = {
         'author': author,
         'page_obj': page_obj,
-        'posts': post,
         'following': following
     }
     return render(request, 'posts/profile.html', context)
 
 
 def post_detail(request, post_id):
-    post = get_object_or_404(Post.objects.select_related('author',
-                                                         'group'), pk=post_id)
-    comments = post.comments.select_related('author')
-    author = post.author
-    form = CommentForm(request.POST or None)
-    following = None
-    if request.user.is_authenticated:
-        following = author.following.filter(user=request.user).exists()
+    posts = get_object_or_404(Post.objects.select_related('author',
+                                                          'group'), pk=post_id)
+    comments = posts.comments.prefetch_related('author')
+    author = posts.author
+    form = CommentForm()
+    following = (True
+                 if request.user.is_authenticated
+                    and author.following.filter(user=request.user).exists()
+                 else False)
     context = {
         'author': author,
-        'posts': post,
+        'posts': posts,
         'form': form,
         'comments': comments,
         'following': following
@@ -100,7 +99,7 @@ def post_edit(request, post_id):
 
     return render(request, 'posts/create_post.html', {'form': form,
                                                       'is_edit': True,
-                                                      'posts': post})
+                                                      'post': post})
 
 
 @login_required

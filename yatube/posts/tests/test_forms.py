@@ -40,9 +40,8 @@ class TestCreatePost(TestCase):
         shutil.rmtree(settings.TEMP_MEDIA_ROOT, ignore_errors=True)
 
     def test_create_post(self):
-        """Проверка создается ли пост и коммент к нему"""
+        """Проверка создается ли пост"""
         post_count = Post.objects.count()
-        comment_count = Comment.objects.count()
         small_gif = (
             b'\x47\x49\x46\x38\x39\x61\x01\x00'
             b'\x01\x00\x00\x00\x00\x21\xf9\x04'
@@ -62,32 +61,38 @@ class TestCreatePost(TestCase):
             'group': self.group.id,
             'image': uploaded,
         }
-        comment_data = {
-            'text': 'текстулька коммента'
-        }
+
         response = self.authorized_client.post(
             reverse('posts:post_create'),
             data=form_data,
             author=self.user,
             follow=True
         )
-        comment_response = self.authorized_client.post(
-            reverse('posts:add_comment', args=[self.post.id]),
-            data=comment_data,
-            follow=True
-        )
         self.assertRedirects(response, reverse('posts:profile',
                                                args=[self.user]))
-        self.assertRedirects(comment_response, reverse('posts:post_detail',
-                                                       args=[self.post.id]))
         self.assertEqual(Post.objects.count(), post_count + 1)
-        self.assertEqual(Comment.objects.count(), comment_count + 1)
         self.assertTrue(Post.objects.filter(
             text=form_data['text'],
             image='posts/small.gif',
             author=self.user,
             group=self.group,
         ).exists())
+
+    def test_comment(self):
+        """Проверка создается ли комментарий"""
+        comment_count = Comment.objects.count()
+        comment_data = {
+            'text': 'текстулька коммента'
+        }
+
+        comment_response = self.authorized_client.post(
+            reverse('posts:add_comment', args=[self.post.id]),
+            data=comment_data,
+            follow=True
+        )
+        self.assertEqual(Comment.objects.count(), comment_count + 1)
+        self.assertRedirects(comment_response, reverse('posts:post_detail',
+                                                       args=[self.post.id]))
         self.assertTrue(Comment.objects.filter(
             text=comment_data['text'],
             author=self.user,
