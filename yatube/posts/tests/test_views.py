@@ -61,10 +61,6 @@ class PostsPagesTest(TestCase):
         self.follower = User.objects.create(
             username='follower'
         )
-        self.not_follower = User.objects.create(
-            username='followerknot'
-        )
-        cache.clear()
 
     def test_pages_show_correct_context(self):
         """Проверяем передаваемый контекст"""
@@ -74,6 +70,7 @@ class PostsPagesTest(TestCase):
                    (reverse('posts:profile',
                             args=[self.user]), self.post),
                    ]
+        cache.clear()
         for reverse_page, context_object in context:
             with self.subTest(reverse_page=reverse_page):
                 response = self.authorized_client.get(reverse_page)
@@ -87,7 +84,7 @@ class PostsPagesTest(TestCase):
         """Проверка, что второй пост не в первой группе"""
         response = self.authorized_client.get(
             reverse('posts:group_list', args=[self.second_group.slug]))
-        page_object = response.context['posts']
+        page_object = response.context['page_obj']
         self.assertNotIn(self.post, page_object)
 
     def test_cashing(self):
@@ -112,39 +109,40 @@ class PostsPagesTest(TestCase):
             author=self.user
         )
         self.authorized_client.force_login(self.follower)
-        response_follow = self.authorized_client.get(
+        response = self.authorized_client.get(
             reverse('posts:follow_index'))
-        objects_count_follow = len(
-            response_follow.context['page_obj'].object_list)
-        self.assertEqual(objects_count_follow, 1)
-        cache.clear()
-        self.authorized_client.force_login(self.user)
-        user_response_follow = self.authorized_client.get(
-            reverse('posts:follow_index'))
-        objects_count_follow = len(
-            user_response_follow.context['page_obj'].object_list)
-        self.assertEqual(objects_count_follow, 0)
+        page_object = response.context['page_obj']
+        self.assertIn(self.post, page_object)
 
     def test_can_follow(self):
         """Авторизованный пользователь может подписываться на других"""
-        follow_count = Follow.objects.filter(
+        self.assertFalse(Follow.objects.filter(
             user=self.follower,
-            author=self.user).count()
-        self.assertEqual(0, follow_count)
+            author=self.user
+        ).exists())
+
         self.authorized_client.force_login(self.follower)
         self.authorized_client.get(reverse(
             'posts:profile_follow',
-            args=[self.user.username])
-        )
-        follow_count = Follow.objects.filter(
+            args=[self.user.username]))
+
+        self.assertTrue(Follow.objects.filter(
             user=self.follower,
-            author=self.user).count()
-        self.assertEqual(1, follow_count)
+            author=self.user
+        ).exists())
+
+    def test_can_unfollow(self):
+        """Авторизованный пользователь может отписываться от других"""
+        Follow.objects.create(
+            user=self.follower,
+            author=self.user)
+
+        self.authorized_client.force_login(self.follower)
         self.authorized_client.get(reverse(
             'posts:profile_unfollow',
-            args=[self.user.username])
-        )
-        follow_count = Follow.objects.filter(
+            args=[self.user.username]))
+
+        self.assertFalse(Follow.objects.filter(
             user=self.follower,
-            author=self.user).count()
-        self.assertEqual(0, follow_count)
+            author=self.user
+        ).exists())

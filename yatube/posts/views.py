@@ -29,7 +29,6 @@ def group_posts(request, slug):
     page_obj = paginator.get_page(page_number)
     context = {
         'group': group,
-        'posts': posts,
         'page_obj': page_obj,
     }
     template = 'posts/group_list.html'
@@ -48,24 +47,24 @@ def profile(request, username):
     context = {
         'author': author,
         'page_obj': page_obj,
-        'posts': post,
         'following': following
     }
     return render(request, 'posts/profile.html', context)
 
 
 def post_detail(request, post_id):
-    post = get_object_or_404(Post.objects.select_related('author',
-                                                         'group'), pk=post_id)
-    comments = post.comments.select_related('author')
-    author = post.author
-    form = CommentForm(request.POST or None)
-    following = None
-    if request.user.is_authenticated:
-        following = author.following.filter(user=request.user).exists()
+    posts = get_object_or_404(Post.objects.select_related('author',
+                                                          'group'), pk=post_id)
+    comments = posts.comments.prefetch_related('author')
+    author = posts.author
+    form = CommentForm()
+    following = (True
+                 if request.user.is_authenticated
+                    and author.following.filter(user=request.user).exists()
+                 else False)
     context = {
         'author': author,
-        'posts': post,
+        'posts': posts,
         'form': form,
         'comments': comments,
         'following': following
@@ -87,12 +86,12 @@ def post_create(request):
 @login_required
 def post_edit(request, post_id):
     post = get_object_or_404(Post.objects.select_related('author'), id=post_id)
+    if post.author != request.user:
+        return redirect('posts:post_detail', post.pk)
     form = PostForm(
         request.POST or None,
         files=request.FILES or None,
         instance=post)
-    if post.author != request.user:
-        return redirect('posts:post_detail', post.pk)
 
     if form.is_valid():
         form.save()
@@ -100,7 +99,7 @@ def post_edit(request, post_id):
 
     return render(request, 'posts/create_post.html', {'form': form,
                                                       'is_edit': True,
-                                                      'posts': post})
+                                                      'post': post})
 
 
 @login_required
@@ -118,19 +117,17 @@ def add_comment(request, post_id):
 @login_required
 def follow_index(request):
     """Страница с постами уважаемых людей."""
-    post = Post.objects.filter(
+    follower_post = Post.objects.filter(
         author__following__user=request.user).select_related('author', 'group')
-    paginator = Paginator(post, settings.MAX_PAGES)
+    paginator = Paginator(follower_post, settings.MAX_PAGES)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    context = {'page_obj': page_obj,
-               'post': post}
-    return render(request, 'posts/follow.html', context)
+    return render(request, 'posts/follow.html', {'page_obj': page_obj})
 
 
 @login_required
 def profile_follow(request, username):
-    if request.user.username == username:
+    if request.user.username.lower() == username.lower():
         return redirect('posts:profile', username=username)
     author = get_object_or_404(User, username=username)
     Follow.objects.get_or_create(user=request.user, author=author)
@@ -139,6 +136,9 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
-    author = get_object_or_404(User, username=username)
-    Follow.objects.filter(user=request.user, author=author).delete()
-    return redirect('posts:profile', username=username)
+    if Follow.objects.filter(user=request.user, author=User.username.id).exist():
+        author = get_object_or_404(User, username=username)
+        Follow.objects.filter(user=request.user, author=author).delete()
+        return redirect('posts:profile', username=username)
+    else:
+        return redirect('posts:index')
