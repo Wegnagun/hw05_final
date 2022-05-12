@@ -41,9 +41,9 @@ def profile(request, username):
     paginator = Paginator(post, settings.MAX_PAGES)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    following = None
-    if request.user.is_authenticated:
-        following = author.following.filter(user=request.user).exists()
+    following = (
+        True if request.user.is_authenticated and author.following.filter(
+            user=request.user).exists() else False)
     context = {
         'author': author,
         'page_obj': page_obj,
@@ -128,13 +128,6 @@ def comment_delete(request, post_id, id):
     comment = Comment.objects.get(post_id=post_id, id=id)
     if request.user.id == comment.author_id:
         comment.delete()
-        # form = CommentForm(request.POST or None)
-        # if form.is_valid():
-        #     comment = form.save(commit=False)
-        #     comment.author = request.user
-        #     comment.text = 'комментарий удален автором! вот пидр!'
-        #     comment.save()
-
     return redirect('posts:post_detail', post_id=post_id)
 
 
