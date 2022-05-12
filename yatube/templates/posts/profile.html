@@ -14,6 +14,12 @@
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 Всего постов автора: <span>{{ author.posts.count }}</span>
             </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Подписан: <span>{{ author.follower.count }}</span>
+            </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                Подписчиков: <span>{{ author.following.count }}</span>
+            </li>
         </ul>
         {% if user != author %}
             {% if following %}
