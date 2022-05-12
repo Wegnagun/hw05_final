@@ -54,14 +54,13 @@ def profile(request, username):
 
 def post_detail(request, post_id):
     posts = get_object_or_404(Post.objects.select_related('author',
-                                                         'group'), pk=post_id)
+                                                          'group'), pk=post_id)
     comments = posts.comments.prefetch_related('author')
     author = posts.author
     form = CommentForm()
-    following = (True
-                 if request.user.is_authenticated
-                    and author.following.filter(user=request.user).exists()
-                 else False)
+    following = (
+        True if request.user.is_authenticated and author.following.filter(
+            user=request.user).exists() else False)
     context = {
         'author': author,
         'form': form,
