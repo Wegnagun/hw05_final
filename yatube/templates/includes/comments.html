@@ -24,6 +24,11 @@
             <p>
                 {{ comment.text }}
             </p>
+          {% if comment.author == user %}
+              <a class="btn btn-sm btn-danger" type="button" data-toggle="modal"
+             data-target="#post-delete-{{comment.id}}" href={% url 'posts:comment_delete' posts.id comment.id %}>
+                Удалить</a>
+          {% endif %}
         </div>
     </div>
 {% endfor %}

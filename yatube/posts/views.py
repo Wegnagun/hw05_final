@@ -4,7 +4,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 
 from .forms import PostForm, CommentForm
-from .models import Post, Group, User, Follow
+from .models import Post, Group, User, Follow, Comment
 
 
 def index(request):
@@ -120,6 +120,21 @@ def add_comment(request, post_id):
         comment.author = request.user
         comment.post = post
         comment.save()
+    return redirect('posts:post_detail', post_id=post_id)
+
+
+@login_required
+def comment_delete(request, post_id, id):
+    comment = Comment.objects.get(post_id=post_id, id=id)
+    if request.user.id == comment.author_id:
+        comment.delete()
+        # form = CommentForm(request.POST or None)
+        # if form.is_valid():
+        #     comment = form.save(commit=False)
+        #     comment.author = request.user
+        #     comment.text = 'комментарий удален автором! вот пидр!'
+        #     comment.save()
+
     return redirect('posts:post_detail', post_id=post_id)
 
 
