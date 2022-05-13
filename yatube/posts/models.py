@@ -101,8 +101,6 @@ class Follow(models.Model):
         verbose_name_plural = 'Подписки'
         models.UniqueConstraint(fields=('user', 'author'),
                                 name='unique_follow')
-        models.CheckConstraint(check=~Q(user=F('author')),
-                               name='user_cant_follow_himself')
 
     def __str__(self):
         return f'{self.user} подписан на {self.author}'
