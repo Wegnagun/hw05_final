@@ -14,7 +14,7 @@
     </div>
   </div>
 {% endif %}
-{% for comment in comments %}
+{% for comment in posts.comments.all %}
     <div class="card my-1">
         <h10 class="card-header">Комментарий: {{ comment.created }}</h10>
         <div class="card-body">

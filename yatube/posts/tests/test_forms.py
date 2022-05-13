@@ -82,7 +82,7 @@ class TestCreatePost(TestCase):
         """Проверка создается ли комментарий"""
         comment_count = Comment.objects.count()
         comment_data = {
-            'text': 'текстулька коммента'
+            'text': 'текстулька коммента',
         }
 
         comment_response = self.authorized_client.post(
@@ -96,6 +96,7 @@ class TestCreatePost(TestCase):
         self.assertTrue(Comment.objects.filter(
             text=comment_data['text'],
             author=self.user,
+            post_id=self.post.id
         ).exists())
 
     def test_post_edit(self):

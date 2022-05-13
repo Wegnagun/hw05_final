@@ -20,6 +20,9 @@ class PostsPagesTest(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.user = User.objects.create_user(username='Testometr')
+        cls.follower = User.objects.create(
+            username='follower'
+        )
         cls.group = Group.objects.create(
             title='Тестовая группа',
             slug='test-slug',
@@ -58,9 +61,6 @@ class PostsPagesTest(TestCase):
     def setUp(self) -> None:
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
-        self.follower = User.objects.create(
-            username='follower'
-        )
 
     def test_pages_show_correct_context(self):
         """Проверяем передаваемый контекст"""
