@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db.models import Prefetch
 from django.shortcuts import render, get_object_or_404, redirect
 
 from .forms import PostForm, CommentForm
@@ -55,7 +56,7 @@ def profile(request, username):
 def post_detail(request, post_id):
     posts = get_object_or_404(
         Post.objects.select_related('author', 'group').prefetch_related(
-            'comments'), pk=post_id)
+            Prefetch('comments')), pk=post_id)
     author = posts.author
     form = CommentForm()
     following = (request.user.is_authenticated and author.following.filter(
@@ -143,7 +144,7 @@ def follow_index(request):
 @login_required
 def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
-    if request.user.username == author.username:
+    if request.user == author:
         return redirect('posts:profile', username=username)
     author.following.get_or_create(user=request.user)
     return redirect('posts:profile', username=username)
