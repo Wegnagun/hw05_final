@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     'core',  # регистрируем приложение core
     'about',  # регистрируем приложение about
     'sorl.thumbnail',
-    'debug_toolbar'
+    'debug_toolbar',
+    'useful'
 ]
 
 MIDDLEWARE = [

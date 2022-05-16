@@ -24,7 +24,7 @@
             <form method="post" enctype="multipart/form-data">
                     {% if action_url %}
                   action={% if is_edit %}"{% url 'post_edit' %}"{% else %}{% url 'post_create' %}{% endif %}
-                    {% endif %}>
+                    {% endif %}
               {% csrf_token %}
               {% for field in form %}
                 <div class="form-group row my-0 p-4"
@@ -62,7 +62,6 @@
                     Добавить
                   {% endif %}
                 </button>
-                </a>
               </div>
             </form>
           </div>

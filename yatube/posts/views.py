@@ -15,7 +15,7 @@ def index(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {
-        'index': 'Последние обновления на сайте',
+        'index': 'Добро пожаловать ко мне в берлогу)',
         'page_obj': page_obj,
     }
     return render(request, 'posts/index.html', context)

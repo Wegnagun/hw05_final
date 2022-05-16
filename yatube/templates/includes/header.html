@@ -16,12 +16,16 @@
             {% with request.resolver_match.view_name as view_name %}
                 <li class="nav-item">
                     <a class="nav-link {% if view_name  == 'about:author' %}active{% endif %}"
-                    href="{% url 'about:author' %}">Об авторе</a>
+                        href="{% url 'about:author' %}">Об авторе</a>
                 </li>
                 <li class="nav-item">
-          <a class="nav-link {% if view_name  == 'about:tech' %}active{% endif %}"
-             href="{% url 'about:tech' %}">Технологии</a>
-        </li>
+                     <a class="nav-link {% if view_name  == 'about:tech' %}active{% endif %}"
+                        href="{% url 'about:tech' %}">Технологии</a>
+                </li>
+                <li class="nav-item">
+                     <a class="nav-link {% if view_name  == 'useful:percent' %}active{% endif %}"
+                        href="{% url 'useful:percent' %}">Полезное</a>
+                </li>
         {% if request.user.is_authenticated %}
             <li class="nav-item">
               <a class="nav-link {% if view_name  == 'posts:post_create' %}active{% endif %}"
