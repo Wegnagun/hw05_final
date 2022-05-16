@@ -16,6 +16,11 @@ ALLOWED_HOSTS = [
     '[::1]',
     'testserver',
 ]
+
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
+
 MAX_PAGES = 10
 
 LOGIN_URL = 'users:login'
@@ -46,6 +51,7 @@ INSTALLED_APPS = [
     'core',  # регистрируем приложение core
     'about',  # регистрируем приложение about
     'sorl.thumbnail',
+    'debug_toolbar'
 ]
 
 MIDDLEWARE = [
@@ -56,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware'
 ]
 
 ROOT_URLCONF = 'yatube.urls'
