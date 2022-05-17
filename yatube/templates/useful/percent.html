@@ -5,41 +5,57 @@
     процентный пиривет
 {% endblock %}
 {% block content %}
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8 p-5">
-                <div class="card">
-                    <div class="card-header">
-                        <h1>процентное соотношение</h1>
-                    </div>
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8 p-5">
+        <div class="card">
+          <div class="card-header">
+            <h5>процентное соотношение</h5>
+          </div>
+          <div class="card-body">
+            <form method="post">
+              {% csrf_token %}
+              {% for field in form %}
+                <div class="form-group row my-0 p-4"
+                        {% if field.field.required %}
+                     aria-required="true"
+                        {% else %}
+                     aria-required="false"
+                        {% endif %}>
+                  <label for="{{ field.id_for_label }}">
+                      {{ field.label }}
+                    {% if field.field.required %}
+                      <span class="required text-danger">*</span>
+                    {% endif %}
+                  </label>
+                  <div class="form-group row my-0 pb-1">
+                    {{ field|addclass:'form-control' }}
+                    {% if field.help_text %}
+                      <small id="{{ field.id_for_label }}-help"
+                             class="form-text text-muted">
+                        {{ field.help_text }}
+                      </small>
+                    {% endif %}
+                  </div>
                 </div>
+              {% endfor %}
+              <div class="form-group row md-8 p-5">
                 <div class="card-body">
-                    <form method="POST">
-                        {% csrf_token %}
-                        <div class="form-group row my-0 p-4">
-                            {% for field in form %}
-                                <label for="{{ field.id_for_label }}" class="col-md-4 col-form-label text-md-right">{{ field.label}}{% if field.field.required %}<span class="required">*</span>{% endif %}</label>
-                                {{ field|addclass:"form-control" }}
-                                <div class="form-group row my-0 pb-1">
-                                    {% if field.help_text %}
-                                        <small id="{{ field.id_for_label }}-help" class="form-text text-muted">{{ field.help_text }}</small>
-                                    {% endif %}
-                                </div>
-                            {% endfor %}
-                        </div>
-                      <div class="form-group row md-8 p-5">
-                          <div class="card-body">
-                            {{ result }}
-                          </div>
-                      </div>
-                        <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-primary">
-                                Посичитать
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+                  <div class="form-group row my-0 pb-1">
+                  {{ result }}%
+                  </div>
+              </div>
+              <div class="d-flex justify-content-end">
+                <div class="d-flex justify-content-end">
+                  <button type="submit" class="btn btn-primary">
+                    Рассчитать
+                  </button>
+              </div>
+            </form>
+          </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 {% endblock %}
